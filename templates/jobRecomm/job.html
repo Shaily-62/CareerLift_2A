@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Jobs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0d1b2a, #1b263b);
+            margin: 0;
+            padding: 0;
+            color: #fff;
+        }
+
+        /* Sticky Search Bar */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(13, 27, 42, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            text-align: center;
+            z-index: 1000;
+            border-bottom: 2px solid #ff6f3c;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 26px;
+            color: #ff6f3c;
+        }
+
+        form {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        input {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            width: 220px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #ff6f3c;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #ff814f;
+            transform: scale(1.05);
+        }
+
+        /* Job Cards Layout */
+        .job-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .job-card {
+            background: #1b263b;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .job-card:hover {
+            transform: translateY(-6px);
+            border-color: #ff6f3c;
+            box-shadow: 0 10px 25px rgba(255, 111, 60, 0.4);
+        }
+
+        .job-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff6f3c;
+            margin-bottom: 8px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .job-title:hover {
+            text-decoration: underline;
+        }
+
+        .job-meta {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .job-tags {
+            margin: 10px 0;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #ff6f3c;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        .card-actions {
+            margin-top: 15px;
+        }
+
+        .apply-btn {
+            background: transparent;
+            border: 2px solid #ff6f3c;
+            color: #ff6f3c;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .apply-btn:hover {
+            background: #ff6f3c;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sticky Header -->
+    <div class="header">
+        <h1>Find Real-Time Jobs</h1>
+        <form method="post">
+            <input type="text" name="jobrole" placeholder="Job title..." required value="{{ query }}">
+            <input type="text" name="location" placeholder="Location..." value="{{ location }}">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <!-- Job List -->
+    <div class="job-list">
+        {% if jobs %}
+            {% for job in jobs %}
+            <div class="job-card">
+                <a href="{{ job.link }}" target="_blank" class="job-title">{{ job.title }}</a>
+                <div class="job-meta">{{ job.company }} - {{ job.location }}</div>
+                {% if job.time_ago %}<em>Posted {{ job.time_ago }}</em>{% endif %}
+                
+                <div class="job-tags">
+                    {% if job.type %}<span class="tag">{{ job.type }}</span>{% endif %}
+                    {% if job.remote %}<span class="tag">Remote</span>{% endif %}
+                    {% if job.internship %}<span class="tag">Internship</span>{% endif %}
+                </div>
+                
+                <div class="card-actions">
+                    <!-- <button class="apply-btn">Apply Now</button> -->
+                    <button class="apply-btn"><a href="{{ job.link }}" target="_blank"></a>Apply Now</button> 
+                    <button class="apply-btn">Save Job</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% elif query %}
+            <p style="padding: 20px; color: #ccc;">No jobs found for "{{ query }}"</p>
+        {% endif %}
+    </div>
+</body>
+</html>

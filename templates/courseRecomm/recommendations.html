@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recommended Courses</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0d1b2a, #1b263b);
+      color: #e0e1dd;
+      animation: fadeIn 0.8s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #ff6f3c; /* orange heading */
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ff6f3c;
+      padding-bottom: 6px;
+      font-size: 22px;
+    }
+
+    .skills, .courses {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .skill-badge {
+      background-color: #1e324d;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      border: 1px solid #ff6f3c;
+      color: #ffb899;
+      transition: background-color 0.3s;
+    }
+
+    .skill-badge:hover {
+      background-color: #ff6f3c;
+      color: #fff;
+    }
+
+    .course-card {
+      background-color: #1b2a41;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      border-left: 4px solid #ff6f3c; /* orange accent */
+    }
+
+    .course-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(255, 111, 60, 0.3);
+    }
+
+    .course-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .course-platform {
+      font-size: 14px;
+      color: #b8c1ec;
+    }
+
+    .course-rating {
+      margin-top: 10px;
+      color: #ffd166; /* golden rating */
+      font-weight: bold;
+    }
+
+    .course-link {
+      margin-top: 12px;
+      text-align: right;
+    }
+
+    .course-link a {
+      text-decoration: none;
+      background: #ff6f3c;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: 0.3s ease;
+    }
+
+    .course-link a:hover {
+      background: #ff814f;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .save-icon {
+      position: absolute;
+      top: 12px;
+      right: 15px;
+      font-size: 22px;
+      cursor: pointer;
+      color: #ffffff99;
+      transition: transform 0.2s ease, color 0.3s ease;
+    }
+
+    .save-icon:hover {
+      transform: scale(1.2);
+      color: #ff6f3c;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ff6f3c;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      display: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🛠️ Extracted Skills</h2>
+    <div class="skills">
+      {% for skill in skills %}
+        <div class="skill-badge">{{ skill }}</div>
+      {% endfor %}
+    </div>
+
+    <h2>📚 Recommended Courses</h2>
+    <div class="grid">
+      {% for course in courses %}
+      <div class="course-card">
+        <div class="save-icon" onclick="saveCourse('{{ course.course_name }}')">❤️</div>
+        <div class="course-title">{{ course.course_name }}</div>
+        <div class="course-platform">{{ course.platform }}</div>
+        <div class="course-rating">⭐ {{ course.rating }}</div>
+        <div class="course-link">
+          <a href="{{ course.course_url }}" target="_blank">View Course</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Course Saved!</div>
+
+  <script>
+    function saveCourse(courseName) {
+      let saved = JSON.parse(localStorage.getItem('savedCourses') || '[]');
+      if (!saved.includes(courseName)) {
+        saved.push(courseName);
+        localStorage.setItem('savedCourses', JSON.stringify(saved));
+        showToast(courseName + " saved!");
+      } else {
+        showToast(courseName + " already saved!");
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.innerText = message;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resume Builder — Tailwind UI (Light)</title>
+
+<!-- Tailwind CSS (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Google Fonts (optional font cycling; previews still render with your CSS) -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;600;800&family=Roboto:wght@400;700;900&family=Source+Serif+4:opsz,wght@8..60,400;8..60,700&display=swap" rel="stylesheet">
+
+<!-- DOCX export lib -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.0.1/docx.umd.min.js" integrity="sha512-Y3J6tK0r9n0mYV2bJj1KeCMlQ0b2wqXqrH7Z1jT8O/5lV5bF5wS8c0k7iF1a3wss9xwqZ0cQeLqj4lX6aE3xKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<style>
+  /* ---------- Variables (unchanged) ---------- */
+  :root {
+    --t1-sidebar: #bbc2c7ee;
+    --t1-sidebar-text: #000;
+    --t1-accent: #111111;
+    --t1-text: #111111;
+    --t1-muted: #6b6b6b;
+
+    --t2-header-bg: #e6f2f9;
+    --t2-accent: #2aa6a6;
+
+    --t3-accent: #f07a2f;
+    --t3-dark: #1a1a1a;
+
+    --paper: #ffffff;
+    --base-font: "Calibri", "Helvetica Neue", Arial, system-ui, sans-serif;
+  }
+
+  /* Paper preview card */
+  .sheet {
+    width: 210mm;
+    height: 297mm;
+    background: var(--paper);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 26px rgba(0,0,0,.08);
+  }
+
+  /* --- Template Styles (kept from your file) --- */
+  .t1 { width: 100%; height: 100%; display: grid; grid-template-columns: 1fr 2fr; gap: 12px; padding: 14mm; color: var(--t1-text); font-family: var(--base-font); }
+  .t1 .header { grid-column: 1/-1; text-align: center; margin-bottom: 8px; }
+  .t1 .header .title { font-size: 36px; font-weight: 800; letter-spacing: 0.3px; }
+  .t1 .header .subtitle { margin-top: 6px; font-size: 14px; font-weight: 700; color: var(--t1-muted); }
+  .t1 .header .contact { margin-top: 8px; font-size: 13px; color: var(--t1-muted); }
+  .t1 .left { background: var(--t1-sidebar); color: var(--t1-sidebar-text); padding: 12px 12px 12px 14px; border-radius: 4px; }
+  .t1 .right { background: transparent; padding-left: 14px; }
+  .t1 .section-label { font-weight: 800; font-size: 13px; display: block; margin-bottom: 6px; }
+  .t1 .sidebar-block { margin-top: 10px; }
+  .t1 .sidebar-block ul { padding-left: 14px; margin: 6px 0 0 0; }
+  .t1 .sidebar-block li { margin-bottom: 6px; font-size: 13px; list-style: none; position: relative; padding-left: 10px; }
+  .t1 .sidebar-block li::before { content: '•'; color: #000; position: absolute; left: 0; font-size: 18px; top: -2px; }
+  .t1 .sect-pill { display: inline-block; background: var(--t1-accent); color: #fff; padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 13px; }
+  .t1 .section { margin-top: 10px; }
+  .t1 .content { margin-top: 6px; font-size: 13px; color: var(--t1-text); line-height: 1.28; }
+  .t1 .entry { margin-top: 6px; }
+  .t1 .entry-head { display: flex; justify-content: space-between; gap: 8px; font-weight: 700; font-size: 13px; }
+  .t1 .entry-sub { margin-top: 4px; font-size: 12.5px; color: var(--t1-muted); }
+  .t1 .content ul { margin: 6px 0 0 16px; padding-left: 0; }
+  .t1 .content li { margin-bottom: 6px; font-size: 13px; }
+
+  .t2 { padding: 18mm 14mm; color: #222; width: 100%; height: 100%; box-sizing: border-box; font-family: var(--base-font); }
+  .t2 .name { text-align: center; font-size: 36px; font-weight: 800; }
+  .t2 .contact { text-align: center; font-size: 13px; color: #666; margin-top: 6px; }
+  .t2 .title { text-align: center; font-weight: 700; margin-top: 8px; font-size: 15px; }
+  .t2 .section { margin-top: 12px; }
+  .t2 .chip { background: var(--t2-header-bg); padding: 6px 10px; border-radius: 8px; font-weight: 800; font-size: 13px; display: inline-block; }
+  .t2 .job { display: flex; justify-content: space-between; margin-top: 8px; font-weight: 700; font-size: 13px; }
+  .t2 .sub { color: #666; font-size: 13px; margin-top: 4px; }
+  .t2 ul { margin: 6px 0 0 14px; }
+  .t2 li { margin-bottom: 6px; font-size: 13px; }
+  .t2 .spacer { height: 6mm; }
+
+  .t3 { display: grid; grid-template-columns: 80mm 130mm; height: 100%; font-family: var(--base-font); }
+  .t3 .left { background: var(--t3-dark); color: #fff; padding: 18mm 12mm; display: flex; flex-direction: column; gap: 10px; }
+  .t3 .photo { width: 38mm; height: 38mm; border-radius: 50%; overflow: hidden; margin: 0 auto; border: 6px solid rgba(255, 255, 255, .08); position: relative; }
+  .t3 .photo img { width: 100%; height: 100%; object-fit: cover; }
+  .t3 .name { text-align: center; font-weight: 800; font-size: 20px; }
+  .t3 .role { text-align: center; font-size: 13px; color: #e5e7eb; margin-top: -4px; }
+  .t3 .tag { display: inline-block; background: rgba(255, 255, 255, .10); padding: 6px 8px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+  .t3 .contact p { margin: 4px 0; font-size: 13px; }
+  .t3 .skill { margin: 6px 0 8px; }
+  .t3 .skill-title { font-size: 13px; margin-bottom: 6px; }
+  .t3 .bar { height: 7px; background: rgba(255, 255, 255, .14); border-radius: 6px; overflow: hidden; }
+  .t3 .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--t3-accent), #ffb07a); }
+  .t3 .soft { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .t3 .soft div { background: rgba(255, 255, 255, .06); border-radius: 6px; padding: 6px 8px; text-align: center; font-size: 13px; }
+  .t3 .right { padding: 18mm 14mm; }
+  .t3 .chip { background: var(--t3-accent); color: #fff; padding: 6px 10px; border-radius: 20px; font-size: 13px; font-weight: 800; display: inline-block; }
+  .t3 .hr { height: 8px; background: #ededed; margin: 8px 0 10px; border-radius: 4px; }
+  .t3 .about { color: #e6e6e6; font-size: 13px; line-height: 1.5; }
+  .t3 .section { font-weight: 800; font-size: 14px; margin: 10px 0 6px; }
+  .t3 .item { margin-bottom: 8px; }
+  .t3 .item-head { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; }
+  .t3 .item-sub { font-size: 12px; color: #c7c7c7; }
+  .t3 .bullets { margin: 6px 0 0 12px; }
+  .t3 .bullets li { font-size: 13px; margin-bottom: 6px; }
+
+  /* Template 4: Timeline (unchanged core) */
+  .t4 { padding: 18mm 14mm; width:100%; height:100%; font-size:13px; font-family: var(--base-font); }
+  .t4 .name { font-size: 34px; font-weight: 800; text-align:center; }
+  .t4 .subtitle { text-align:center; margin-top:6px; color:#666; }
+  .t4 .contact { text-align:center; margin-top:6px; color:#666; }
+  .t4 .section { margin-top: 12px; }
+  .t4 .chip { display:inline-block; padding:6px 10px; background:#eef2ff; border-radius:10px; font-weight:800; }
+  .t4 .timeline { margin-top:10px; border-left:2px solid #d1d5db; padding-left:14px; }
+  .t4 .titem { margin-bottom:10px; position:relative; }
+  .t4 .titem::before { content:''; position:absolute; left:-9px; top:3px; width:10px; height:10px; background:#6366f1; border-radius:50%; }
+  .t4 .titem .head { display:flex; justify-content:space-between; font-weight:800; }
+  .t4 .titem .sub { color:#6b7280; }
+
+  /* NEW Template 5: Clean Timeline (light Tailwind-like look via CSS only) */
+  .t5 { padding: 18mm 14mm; font-family: var(--base-font); height: 100%; }
+  .t5 .header { text-align:center; }
+  .t5 .name { font-size: 36px; font-weight: 800; letter-spacing: .3px; }
+  .t5 .role { color:#6b7280; font-weight:600; margin-top:4px; }
+  .t5 .contact { color:#6b7280; margin-top:6px; font-size: 13px; }
+  .t5 .grid { display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-top:12px; }
+  .t5 .sec-title { font-weight:800; font-size:14px; padding:6px 10px; background:#f3f4f6; border-radius:10px; display:inline-block; }
+  .t5 .line { margin-top:8px; border-left: 2px solid #e5e7eb; padding-left:14px; }
+  .t5 .item { margin-bottom:8px; position:relative; }
+  .t5 .item::before { content:''; position:absolute; left:-9px; top:4px; width:10px; height:10px; background:#0ea5e9; border-radius:50%; }
+  .t5 .item .top { display:flex; justify-content:space-between; font-weight:700; font-size:13px; }
+  .t5 ul { margin:6px 0 0 14px; }
+  .t5 li { font-size:13px; margin-bottom:6px; }
+  .t5 .tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .t5 .tag { font-size:12px; background:#eff6ff; border:1px solid #dbeafe; padding:4px 8px; border-radius:999px; }
+
+  /* NEW Template 6: Minimal Modern (two-column) */
+  .t6 { height:100%; display:grid; grid-template-columns: 70mm auto; }
+  .t6 .left { background:#f9fafb; padding:18mm 10mm; }
+  .t6 .right { padding:18mm 14mm; }
+  .t6 .name { font-size: 34px; font-weight: 900; }
+  .t6 .role { color:#6b7280; margin-top:4px; font-weight:600; }
+  .t6 .sec { margin-top:12px; }
+  .t6 .h { font-weight:800; font-size:13px; letter-spacing:.4px; color:#374151; }
+  .t6 .list { margin-top:6px; }
+  .t6 .list li { font-size: 13px; margin-bottom:6px; }
+  .t6 .chip { display:inline-block; background:#111827; color:#fff; font-weight:800; font-size:12px; padding:4px 10px; border-radius:999px; }
+  .t6 .row { margin-top:8px; }
+  .t6 .item { margin-bottom:8px; }
+  .t6 .item .top { display:flex; justify-content:space-between; font-weight:800; font-size:13px; }
+  .t6 .item .sub { color:#6b7280; font-size:12.5px; }
+
+  /* Draggable cue */
+  .draggable { cursor: move; }
+
+  /* Print & Responsive */
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { background: transparent; padding: 0; }
+    .no-print { display: none !important; }
+    .sheet { border: none; width: 210mm; height: 297mm; page-break-after: always; box-shadow: none; transform: scale(1); }
+  }
+  @media (max-width: 1280px) {
+    .sheet { transform: scale(0.95); transform-origin: top center; }
+  }
+  @media (max-width: 1024px) {
+    .sheet { transform: scale(0.9); }
+  }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+<!-- App container -->
+<div class="max-w-[1400px] mx-auto p-4 lg:p-6">
+  <!-- Header / Actions -->
+  <div class="no-print mb-4 lg:mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">Resume Builder</h1>
+      <p class="text-sm text-slate-500">Live preview • Multi-template • A4 print • DOCX export</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold hover:opacity-90 transition"
+              onclick="printSheet()">
+        <span>Export / Print (A4)</span>
+      </button>
+      
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="grid grid-cols-12 gap-5">
+    <!-- Left: Form (Tailwind UI) -->
+    <aside class="no-print col-span-12 xl:col-span-5">
+      <div class="bg-white rounded-2xl shadow-lg ring-1 ring-slate-200 p-4 md:p-5 space-y-6">
+
+        <!-- Template chooser (replaces select; syncs #tpl) -->
+        <section>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold uppercase tracking-wide text-slate-700">Choose Template</h2>
+            <span class="text-xs text-slate-500">Click a card</span>
+          </div>
+          <input id="tpl" class="hidden" value="1" />
+          <div id="tplCards" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <!-- Cards are clickable labels with radios -->
+            <label class="group cursor-pointer rounded-xl ring-1 ring-slate-200 hover:ring-slate-300 transition p-3 flex flex-col gap-2"
+                   data-tpl="1">
+              <input type="radio" name="tplCard" class="peer hidden" checked />
+              <div class="aspect-[3/4] bg-slate-100 rounded-lg grid place-items-center text-xs text-slate-500">
+                T1 • Final Resume
+              </div>
+              <div class="text-sm font-semibold text-slate-700">Template 1</div>
+              <div class="text-xs text-slate-500">Final / Sidebar</div>
+              <div class="mt-1 hidden peer-checked:block text-xs text-sky-600 font-semibold">Selected</div>
+            </label>
+
+            <label class="group cursor-pointer rounded-xl ring-1 ring-slate-200 hover:ring-slate-300 transition p-3 flex flex-col gap-2"
+                   data-tpl="2">
+              <input type="radio" name="tplCard" class="peer hidden" />
+              <div class="aspect-[3/4] bg-slate-100 rounded-lg grid place-items-center text-xs text-slate-500">
+                T2 • Olivia
+              </div>
+              <div class="text-sm font-semibold text-slate-700">Template 2</div>
+              <div class="text-xs text-slate-500">Enriched</div>
+              <div class="mt-1 hidden peer-checked:block text-xs text-sky-600 font-semibold">Selected</div>
+            </label>
+
+            <label class="group cursor-pointer rounded-xl ring-1 ring-slate-200 hover:ring-slate-300 transition p-3 flex flex-col gap-2"
+                   data-tpl="3">
+              <input type="radio" name="tplCard" class="peer hidden" />
+              <div class="aspect-[3/4] bg-slate-100 rounded-lg grid place-items-center text-xs text-slate-500">
+                T3 • Claudia
+              </div>
+              <div class="text-sm font-semibold text-slate-700">Template 3</div>
+              <div class="text-xs text-slate-500">With Photo</div>
+              <div class="mt-1 hidden peer-checked:block text-xs text-sky-600 font-semibold">Selected</div>
+            </label>
+
+            <label class="group cursor-pointer rounded-xl ring-1 ring-slate-200 hover:ring-slate-300 transition p-3 flex flex-col gap-2"
+                   data-tpl="4">
+              <input type="radio" name="tplCard" class="peer hidden" />
+              <div class="aspect-[3/4] bg-slate-100 rounded-lg grid place-items-center text-xs text-slate-500">
+                T4 • Timeline
+              </div>
+              <div class="text-sm font-semibold text-slate-700">Template 4</div>
+              <div class="text-xs text-slate-500">Chrono view</div>
+              <div class="mt-1 hidden peer-checked:block text-xs text-sky-600 font-semibold">Selected</div>
+            </label>
+
+            <label class="group cursor-pointer rounded-xl ring-1 ring-slate-200 hover:ring-slate-300 transition p-3 flex flex-col gap-2"
+                   data-tpl="5">
+              <input type="radio" name="tplCard" class="peer hidden" />
+              <div class="aspect-[3/4] bg-slate-100 rounded-lg grid place-items-center text-xs text-slate-500">
+                T5 • Clean Timeline
+              </div>
+              <div class="text-sm font-semibold text-slate-700">Template 5</div>
+              <div class="text-xs text-slate-500">Clean, tag skills</div>
+              <div class="mt-1 hidden peer-checked:block text-xs text-sky-600 font-semibold">Selected</div>
+            </label>
+
+            <label class="group cursor-pointer rounded-xl ring-1 ring-slate-200 hover:ring-slate-300 transition p-3 flex flex-col gap-2"
+                   data-tpl="6">
+              <input type="radio" name="tplCard" class="peer hidden" />
+              <div class="aspect-[3/4] bg-slate-100 rounded-lg grid place-items-center text-xs text-slate-500">
+                T6 • Minimal Modern
+              </div>
+              <div class="text-sm font-semibold text-slate-700">Template 6</div>
+              <div class="text-xs text-slate-500">Minimal, 2-col</div>
+              <div class="mt-1 hidden peer-checked:block text-xs text-sky-600 font-semibold">Selected</div>
+            </label>
+          </div>
+        </section>
+
+        <!-- Accent + Actions -->
+        <section class="grid grid-cols-3 gap-3">
+          <div class="col-span-2">
+            <label class="text-xs font-semibold text-slate-600">Accent Color</label>
+            <input name="accent" type="text" placeholder="#111111"
+                   class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+          </div>
+          <div class="flex items-end">
+            <button class="w-full px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 font-semibold text-slate-700"
+                    onclick="apply()">Refresh Preview</button>
+          </div>
+        </section>
+
+        <!-- Form (keeps same names/ids for JS compatibility) -->
+        <form id="form" method="POST" action="/createResume" onsubmit="return false;" class="space-y-4">
+
+          <!-- Personal Info -->
+          <details open class="rounded-2xl border border-slate-200 p-4">
+            <summary class="cursor-pointer text-sm font-bold text-slate-700">Personal Info</summary>
+            <div class="grid grid-cols-12 gap-3 mt-3">
+              <div class="col-span-12 md:col-span-6">
+                <label class="text-xs font-semibold text-slate-600">Name</label>
+                <input name="name" type="text" value="SHARVARI KADAM"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+              </div>
+              <div class="col-span-12 md:col-span-6">
+                <label class="text-xs font-semibold text-slate-600">Title / Role</label>
+                <input name="role" type="text" value="B.Tech Student | Computer Science & Engineering (Data Science)"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+              <div class="col-span-12 sm:col-span-4">
+                <label class="text-xs font-semibold text-slate-600">Phone</label>
+                <input name="phone" type="text" value="8291210508"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+              <div class="col-span-12 sm:col-span-4">
+                <label class="text-xs font-semibold text-slate-600">Email</label>
+                <input name="email" type="email" value="sharvarik6125@gmail.com"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+              <div class="col-span-12 sm:col-span-4">
+                <label class="text-xs font-semibold text-slate-600">Location</label>
+                <input name="addr" type="text" value="Thane, Maharashtra"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+
+              <!-- Links: LinkedIn + GitHub merged into hidden 'web' -->
+              <div class="col-span-12 sm:col-span-6">
+                <label class="text-xs font-semibold text-slate-600">LinkedIn</label>
+                <input id="lnInput" type="url" placeholder="https://linkedin.com/in/username"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+              <div class="col-span-12 sm:col-span-6">
+                <label class="text-xs font-semibold text-slate-600">GitHub</label>
+                <input id="ghInput" type="url" placeholder="https://github.com/username"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+              <!-- Hidden original field the templates use -->
+              <input name="web" type="url" id="webCombined" class="hidden" />
+            </div>
+          </details>
+
+          <!-- Summary -->
+          <details open class="rounded-2xl border border-slate-200 p-4">
+            <summary class="cursor-pointer text-sm font-bold text-slate-700">Profile / Summary</summary>
+            <textarea name="about" class="w-full mt-3 px-3 py-2 rounded-xl border min-h-[90px]">Motivated and curious Computer Science and Data Science student with a strong foundation in Python, Java, and web development. Eager to apply AI/ML knowledge in real-world scenarios. Actively seeking opportunities to grow through hands-on learning, innovation, and teamwork.</textarea>
+          </details>
+
+          <!-- Skills & Languages -->
+          <details open class="rounded-2xl border border-slate-200 p-4">
+            <summary class="cursor-pointer text-sm font-bold text-slate-700">Skills & Languages</summary>
+            <div class="grid grid-cols-12 gap-3 mt-3">
+              <div class="col-span-12 md:col-span-6">
+                <label class="text-xs font-semibold text-slate-600">Skills (comma separated)</label>
+                <input name="skills" type="text" value="Python, Java, HTML, Critical Thinking, Creativity"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+              <div class="col-span-12 md:col-span-6">
+                <label class="text-xs font-semibold text-slate-600">Languages (comma separated)</label>
+                <input name="lang" type="text" value="Hindi, English, Marathi"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+            </div>
+          </details>
+
+          <!-- Projects -->
+          <details open class="rounded-2xl border border-slate-200 p-4">
+            <summary class="cursor-pointer text-sm font-bold text-slate-700">Projects</summary>
+            <p class="text-xs text-slate-500 mt-2">Format per line: <code>Title | Date | detail1; detail2</code></p>
+            <textarea name="projects" class="w-full mt-3 px-3 py-2 rounded-xl border min-h-[110px]">AI Hackathon – Selection Round Participant | 2025 | Explored AIML algorithms and problem-solving; Learned real-world implementation
+College Project Competition | 2025 | Built a working AI-based system; Handled core logic and development</textarea>
+          </details>
+
+          <!-- Education -->
+          <details open class="rounded-2xl border border-slate-200 p-4">
+            <summary class="cursor-pointer text-sm font-bold text-slate-700">Education</summary>
+            <p class="text-xs text-slate-500 mt-2">Format per line: <code>Date | Degree | Institute | details (;)</code></p>
+            <textarea name="edu" class="w-full mt-3 px-3 py-2 rounded-xl border min-h-[110px]">2023 – 2027 | Bachelor of Technology – CSE (Data Science) | A.P. Shah Institute of Technology | CGPA: Sem 1 – 7.61; Sem 2 – 7.85; Sem 3 – 8.96
+2023 | HSC | New English School and Jr. College | Maharashtra State Board
+2021 | SSC | Poddar Brio International School | CBSE Board</textarea>
+          </details>
+
+          <!-- Certifications / Awards / References -->
+          <details class="rounded-2xl border border-slate-200 p-4">
+            <summary class="cursor-pointer text-sm font-bold text-slate-700">Certifications • Awards • References</summary>
+            <div class="grid grid-cols-12 gap-3 mt-3">
+              <div class="col-span-12">
+                <label class="text-xs font-semibold text-slate-600">Certifications (semicolon “;”)</label>
+                <input name="certs" type="text" value="Data Engineering Virtual Internship – Eduskills Academy (AWS); Python Fullstack Developer Virtual Internship – Eduskills Academy"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+              <div class="col-span-12 md:col-span-6">
+                <label class="text-xs font-semibold text-slate-600">Awards (comma separated)</label>
+                <input name="awards" type="text" value="AI Hackathon Participant (2025)"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+              <div class="col-span-12 md:col-span-6">
+                <label class="text-xs font-semibold text-slate-600">References</label>
+                <input name="refs" type="text" value="Available upon Request"
+                       class="w-full mt-1 px-3 py-2 rounded-xl border" />
+              </div>
+            </div>
+          </details>
+
+          <!-- Photo (T3) -->
+          <details class="rounded-2xl border border-slate-200 p-4">
+            <summary class="cursor-pointer text-sm font-bold text-slate-700">Photo (Template 3)</summary>
+            <div class="grid grid-cols-12 gap-3 mt-3">
+              <div class="col-span-12">
+                <label class="text-xs font-semibold text-slate-600">Upload</label>
+                <input id="photo-input" name="photo" type="file" accept="image/*"
+                       class="w-full mt-1 block text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-100 hover:file:bg-slate-200" />
+                <div class="mt-2 text-xs text-slate-500">Or drag & drop onto the photo circle in Template 3 preview.</div>
+              </div>
+            </div>
+          </details>
+
+        </form>
+
+        <div class="text-[11px] text-slate-500">Hint: Use <kbd class="px-1 py-0.5 rounded bg-slate-100 border">Ctrl</kbd>+<kbd class="px-1 py-0.5 rounded bg-slate-100 border">Shift</kbd>+<kbd class="px-1 py-0.5 rounded bg-slate-100 border">F</kbd> to cycle fonts, <kbd>Ctrl+Shift+E</kbd> for DOCX.</div>
+      </div>
+    </aside>
+
+    <!-- Right: Preview -->
+    <main class="col-span-12 xl:col-span-7">
+      <div class="bg-white rounded-2xl shadow-lg ring-1 ring-slate-200 p-3 md:p-4">
+        <div id="sheetWrap" class="flex flex-wrap justify-center gap-4">
+          <!-- Pages (.sheet) will be injected here -->
+        </div>
+      </div>
+      <p class="mt-3 text-xs text-slate-500">In the browser print dialog, enable <em>Background graphics</em> and disable headers/footers for best PDF results.</p>
+    </main>
+  </div>
+</div>
+
+<script>
+  // ---------- Helpers ----------
+  const $ = sel => document.querySelector(sel);
+  const getLines = v => (v||'').split('\\n').map(x=>x.trim()).filter(Boolean);
+  const csv = v => (v||'').split(',').map(x=>x.trim()).filter(Boolean);
+
+  const FONTS = [
+    '"Calibri","Helvetica Neue",Arial,system-ui,sans-serif',
+    '"Poppins",system-ui,sans-serif',
+    '"Roboto",system-ui,sans-serif',
+    '"Inter",system-ui,sans-serif',
+    '"Source Serif 4",Georgia,serif'
+  ];
+  let fontIdx = +localStorage.getItem('rb_fontIdx') || 0;
+
+  // ---------- Data handling ----------
+  function dataFromForm(){
+    const f = new FormData($('#form'));
+    const d = {
+      name: (f.get('name')||'').toUpperCase(),
+      role: (f.get('role')||'').toUpperCase(),
+      phone: f.get('phone')||'',
+      email: f.get('email')||'',
+      addr: f.get('addr')||'',
+      web: f.get('web')||'',              // merged LinkedIn + GitHub lives here
+      about: f.get('about')||'',
+      skills: f.get('skills')||'',
+      lang: f.get('lang')||'',
+      certs: f.get('certs')||'',
+      projects: f.get('projects')||'',
+      edu: f.get('edu')||'',
+      awards: f.get('awards')||'',
+      refs: f.get('refs')||'',
+      accent: f.get('accent')||''
+    };
+    localStorage.setItem('rb_form', JSON.stringify(d));
+    return d;
+  }
+
+  // Merge LinkedIn + GitHub into hidden "web" field for compatibility
+  function mergeLinksIntoWeb(){
+    const ln = $('#lnInput')?.value?.trim();
+    const gh = $('#ghInput')?.value?.trim();
+    const parts = [];
+    if(ln) parts.push(ln);
+    if(gh) parts.push(gh);
+    $('#webCombined').value = parts.join(' • ');
+  }
+
+  // ---------- Templates (your originals kept; 2 new added) ----------
+  function renderT1(d){
+    const contact = [d.phone, d.email, d.addr].filter(Boolean).join('  •  ');
+    const skillsHTML = csv(d.skills).map(s=>`<li>${s}</li>`).join('');
+    const langsHTML = csv(d.lang).map(s=>`<li>${s}</li>`).join('');
+    const certsHTML = d.certs ? d.certs.split(';').map(s=>`<li>${s.trim()}</li>`).join('') : '';
+    const projectsHTML = getLines(d.projects).map(line=>{
+      const p = line.split('|').map(x=>x.trim());
+      const bullets = p[2] ? p[2].split(';').map(b=>`<li>${b.trim()}</li>`).join('') : '';
+      return `<div class="entry"><div class="entry-head draggable"><div>${p[0]||''}</div><div>${p[1]||''}</div></div>${p[2] ? `<div class="entry-sub">${p[2].split(';').map(x=>x.trim()).join(' • ')}</div>` : ''}</div>${bullets?`<ul>${bullets}</ul>`:''}`;
+    }).join('');
+    const educationHTML = getLines(d.edu).map(line=>{
+      const p = line.split('|').map(x=>x.trim());
+      const bullets = p[3] ? p[3].split(';').map(b=>`<li>${b.trim()}</li>`).join('') : '';
+      return `<div class="entry"><div class="entry-head draggable"><div>${p[1]||''}</div><div>${p[0]||''}</div></div><div class="entry-sub">${p[2]||''}</div>${bullets?`<ul>${bullets}</ul>`:''}</div>`;
+    }).join('');
+    const awardsHTML = d.awards ? `<div class="section draggable" data-block="awards"><span class="sect-pill">AWARDS &amp; ACHIEVEMENTS</span><div class="content"><ul>${d.awards.split(',').map(a=>`<li>${a.trim()}</li>`).join('')}</ul></div></div>` : '';
+    return `<div class="t1" id="t1-root">
+      <div class="header draggable" data-block="header">
+        <div class="title">${d.name}</div>
+        <div class="subtitle">${d.role}</div>
+        <div class="contact">${contact}</div>
+      </div>
+      <div class="left" id="t1-left">
+        <div class="sidebar-block"><div class="section-label">SKILLS</div><ul>${skillsHTML}</ul></div>
+        <div class="sidebar-block"><div class="section-label">LANGUAGE</div><ul>${langsHTML}</ul></div>
+        <div class="sidebar-block"><div class="section-label">CERTIFICATIONS</div><ul>${certsHTML}</ul></div>
+      </div>
+      <div class="right">
+        <div class="section draggable" data-block="profile"><span class="sect-pill">PROFILE</span><div class="content">${d.about}</div></div>
+        <div class="section draggable" data-block="projects"><span class="sect-pill">PROJECT EXPERIENCE</span><div class="content">${projectsHTML}</div></div>
+        <div class="section draggable" data-block="education"><span class="sect-pill">EDUCATION</span><div class="content">${educationHTML}</div></div>
+        <div class="section draggable" data-block="work"><span class="sect-pill">WORK EXPERIENCE</span><div class="content"></div></div>
+        ${awardsHTML}
+        <div style="height:4mm"></div>
+      </div>
+    </div>`;
+  }
+
+  function renderT2(d){
+    const contact = [d.addr, d.email, d.web].filter(Boolean).join(' • ');
+    const skillsHTML = csv(d.skills).map(s=>`<li>${s}</li>`).join('');
+    const projectsHTML = getLines(d.projects).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets=p[2]?`<ul>${p[2].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="job draggable" data-item="proj"><div>${p[0]||''}</div><div class="date">${p[1]||''}</div></div>${bullets}`;
+    }).join('');
+    const eduHTML = getLines(d.edu).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets=p[3]?`<ul>${p[3].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="job draggable" data-item="edu"><div>${p[1]||''} | <span style="font-weight:400;color:#666">${p[2]||''}</span></div><div class="date">${p[0]||''}</div></div>${bullets}`;
+    }).join('');
+    const awardsHTML = d.awards ? `<div class="section draggable" data-block="awards"><span class="chip">AWARDS & ACHIEVEMENTS</span><ul>${d.awards.split(',').map(a=>`<li>${a.trim()}</li>`).join('')}</ul></div>` : '';
+    return `<div class="t2">
+      <div class="name">${d.name}</div>
+      <div class="contact">${contact}</div>
+      <div class="title">${d.role}</div>
+      <div class="section draggable" data-block="skills"><span class="chip">TECHNICAL SKILLS</span><ul>${skillsHTML}</ul></div>
+      <div class="section draggable" data-block="projects"><span class="chip">PROJECTS</span>${projectsHTML}</div>
+      <div class="section draggable" data-block="education"><span class="chip">EDUCATION</span>${eduHTML}</div>
+      ${awardsHTML}
+      <div class="spacer"></div>
+    </div>`;
+  }
+
+  function renderT3(d){
+    const skillsHTML = csv(d.skills).map((s,i)=>{
+      return `<div class="skill"><div class="skill-title">${s}</div><div class="bar"><i style="width:${60+(i*10)%35}%"></i></div></div>`;
+    }).join('');
+    const softHTML = csv(d.lang).map(s=>`<div>${s}</div>`).join('');
+    const projectsAsExp = getLines(d.projects).join('\\n');
+    const expLines = (projectsAsExp ? projectsAsExp+'\\n' : '') + (d.exp||'');
+    const eduHTML = getLines(d.edu).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets = p[3]?`<ul class="bullets">${p[3].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="item draggable" data-item="edu"><div class="item-head"><div>${p[1]||''}</div><div>${p[0]||''}</div></div><div class="item-sub">${p[2]||''}</div>${bullets}</div>`;
+    }).join('');
+    const expHTML = getLines(expLines).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets = p[2]?`<ul class="bullets">${p[2].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="item draggable" data-item="exp"><div class="item-head"><div>${p[1]||''}</div><div>${p[0]||''}</div></div>${bullets}</div>`;
+    }).join('');
+    return `<div class="t3">
+      <aside class="left">
+        <div class="photo" id="t3photo" title="Drop image here">
+          <img id="t3img" alt="">
+        </div>
+        <div class="name">${d.name}</div>
+        <div class="role">${d.role}</div>
+        <span class="tag">CONTACTS</span>
+        <div class="contact"><p>${d.email}</p><p>${d.addr}</p></div>
+        <span class="tag">SKILLS</span>
+        <div>${skillsHTML}</div>
+        <span class="tag">SOFT SKILLS</span>
+        <div class="soft">${softHTML}</div>
+      </aside>
+      <main class="right">
+        <span class="chip">ABOUT ME</span>
+        <div class="hr"></div>
+        <div class="about">${d.about}</div>
+        <div class="section draggable" data-block="education">EDUCATION</div>
+        ${eduHTML}
+        <div class="section draggable" data-block="experience">EXPERIENCE</div>
+        ${expHTML}
+      </main>
+    </div>`;
+  }
+
+  function renderT4(d){
+    const contact = [d.phone, d.email, d.web || d.addr].filter(Boolean).join(' • ');
+    const projectsHTML = getLines(d.projects).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets=p[2]?`<ul>${p[2].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="titem draggable" data-item="proj"><div class="head"><div>${p[0]||''}</div><div>${p[1]||''}</div></div>${bullets}</div>`;
+    }).join('');
+    const eduHTML = getLines(d.edu).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets=p[3]?`<ul>${p[3].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="titem draggable" data-item="edu"><div class="head"><div>${p[1]||''} — <span class="sub">${p[2]||''}</span></div><div>${p[0]||''}</div></div>${bullets}</div>`;
+    }).join('');
+    const skillsHTML = csv(d.skills).map(s=>`<li>${s}</li>`).join('');
+    const awardsHTML = d.awards ? `<ul>${d.awards.split(',').map(a=>`<li>${a.trim()}</li>`).join('')}</ul>` : '';
+    return `<div class="t4">
+      <div class="name">${d.name}</div>
+      <div class="subtitle">${d.role}</div>
+      <div class="contact">${contact}</div>
+      <div class="section draggable" data-block="profile"><span class="chip">PROFILE</span><div>${d.about}</div></div>
+      <div class="section draggable" data-block="projects"><span class="chip">PROJECTS</span><div class="timeline">${projectsHTML}</div></div>
+      <div class="section draggable" data-block="education"><span class="chip">EDUCATION</span><div class="timeline">${eduHTML}</div></div>
+      <div class="section draggable" data-block="skills"><span class="chip">SKILLS</span><ul>${skillsHTML}</ul></div>
+      ${d.awards ? `<div class="section draggable" data-block="awards"><span class="chip">AWARDS</span>${awardsHTML}</div>` : ''}
+    </div>`;
+  }
+
+  // NEW Template 5: Clean Timeline
+  function renderT5(d){
+    const contact = [d.phone, d.email, d.web || d.addr].filter(Boolean).join(' • ');
+    const proj = getLines(d.projects).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets=p[2]?`<ul>${p[2].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="item"><div class="top"><div>${p[0]||''}</div><div>${p[1]||''}</div></div>${bullets}</div>`;
+    }).join('');
+    const edu = getLines(d.edu).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets=p[3]?`<ul>${p[3].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="item"><div class="top"><div>${p[1]||''} — <span class="text-slate-500">${p[2]||''}</span></div><div>${p[0]||''}</div></div>${bullets}</div>`;
+    }).join('');
+    const tags = csv(d.skills).map(s=>`<span class="tag">${s}</span>`).join('');
+    return `<div class="t5">
+      <div class="header">
+        <div class="name">${d.name}</div>
+        <div class="role">${d.role}</div>
+        <div class="contact">${contact}</div>
+      </div>
+      <div class="grid">
+        <section>
+          <div class="sec-title">PROFILE</div>
+          <div class="mt-2 text-[13px]">${d.about}</div>
+          <div class="sec-title mt-4">SKILLS</div>
+          <div class="tags">${tags}</div>
+        </section>
+        <section>
+          <div class="sec-title">PROJECTS</div>
+          <div class="line">${proj}</div>
+          <div class="sec-title mt-3">EDUCATION</div>
+          <div class="line">${edu}</div>
+        </section>
+      </div>
+    </div>`;
+  }
+
+  // NEW Template 6: Minimal Modern
+  function renderT6(d){
+    const skills = csv(d.skills).map(s=>`<li>${s}</li>`).join('');
+    const links = (d.web||'').split('•').map(x=>x.trim()).filter(Boolean).map(x=>`<li>${x}</li>`).join('');
+    const proj = getLines(d.projects).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets=p[2]?`<ul class="list">${p[2].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="item"><div class="top"><div>${p[0]||''}</div><div>${p[1]||''}</div></div>${bullets}</div>`;
+    }).join('');
+    const edu = getLines(d.edu).map(line=>{
+      const p=line.split('|').map(x=>x.trim());
+      const bullets=p[3]?`<ul class="list">${p[3].split(';').map(b=>`<li>${b.trim()}</li>`).join('')}</ul>`:'';
+      return `<div class="item"><div class="top"><div>${p[1]||''}</div><div>${p[0]||''}</div></div><div class="sub">${p[2]||''}</div>${bullets}</div>`;
+    }).join('');
+    return `<div class="t6">
+      <aside class="left">
+        <div class="name">${d.name}</div>
+        <div class="role">${d.role}</div>
+        <div class="sec">
+          <div class="h">CONTACT</div>
+          <ul class="list">
+            ${d.email?`<li>${d.email}</li>`:''}
+            ${d.phone?`<li>${d.phone}</li>`:''}
+            ${d.addr?`<li>${d.addr}</li>`:''}
+          </ul>
+        </div>
+        <div class="sec">
+          <div class="h">LINKS</div>
+          <ul class="list">${links}</ul>
+        </div>
+        <div class="sec">
+          <div class="h">SKILLS</div>
+          <ul class="list">${skills}</ul>
+        </div>
+      </aside>
+      <main class="right">
+        <div class="chip">PROFILE</div>
+        <div class="row text-[13px] mt-2">${d.about}</div>
+        <div class="chip mt-3">PROJECTS</div>
+        <div class="row">${proj}</div>
+        <div class="chip mt-3">EDUCATION</div>
+        <div class="row">${edu}</div>
+      </main>
+    </div>`;
+  }
+
+  // ---------- Apply / Render ----------
+  function setAccent(d){
+    if(d.accent){
+      document.documentElement.style.setProperty('--t1-accent', d.accent);
+      document.documentElement.style.setProperty('--t3-accent', d.accent);
+    }
+  }
+
+  function apply(){
+    mergeLinksIntoWeb();
+    const d = dataFromForm();
+    const tpl = $('#tpl').value || '1';
+    setAccent(d);
+
+    const sheetWrap = $('#sheetWrap');
+    sheetWrap.innerHTML = ''; // clear
+
+    const firstPage = document.createElement('div');
+    firstPage.className = 'sheet';
+    const inner = document.createElement('div');
+
+    // font cycle
+    document.documentElement.style.setProperty('--base-font', (FONTS[fontIdx] || FONTS[0]));
+
+    if(tpl === '1') inner.innerHTML = renderT1(d);
+    if(tpl === '2') inner.innerHTML = renderT2(d);
+    if(tpl === '3') inner.innerHTML = renderT3(d);
+    if(tpl === '4') inner.innerHTML = renderT4(d);
+    if(tpl === '5') inner.innerHTML = renderT5(d);
+    if(tpl === '6') inner.innerHTML = renderT6(d);
+
+    firstPage.appendChild(inner);
+    sheetWrap.appendChild(firstPage);
+
+    // Normalize T1 sidebar color to white text
+    const left = document.querySelector('.t1 .left');
+    if(left){
+      left.style.background = getComputedStyle(document.documentElement).getPropertyValue('--t1-sidebar') || '#17201c';
+      left.style.color = '#fff';
+      left.querySelectorAll('li').forEach(li=>li.style.color='#fff');
+    }
+
+    // Photo load for T3 (file input)
+    const inp = document.getElementById('photo-input');
+    if(tpl === '3' && inp && inp.files && inp.files[0]){
+      const reader = new FileReader();
+      reader.onload = e => { const img = document.getElementById('t3img'); if(img) img.src = e.target.result; };
+      reader.readAsDataURL(inp.files[0]);
+    }
+    // Drag & drop photo for T3
+    if(tpl === '3'){
+      const drop = document.getElementById('t3photo');
+      if(drop){
+        drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('outline','outline-2','outline-slate-300'); });
+        drop.addEventListener('dragleave', ()=> drop.classList.remove('outline','outline-2','outline-slate-300'));
+        drop.addEventListener('drop', e=>{
+          e.preventDefault();
+          drop.classList.remove('outline','outline-2','outline-slate-300');
+          const file = e.dataTransfer.files && e.dataTransfer.files[0];
+          if(file && file.type.startsWith('image/')){
+            const r = new FileReader();
+            r.onload = ev => { const img = document.getElementById('t3img'); if(img) img.src = ev.target.result; };
+            r.readAsDataURL(file);
+          }
+        }, { once:false });
+      }
+    }
+
+    enableDragReorder();
+    paginatePages();
+  }
+
+  // ---------- Drag reorder ----------
+  function enableDragReorder(){
+    const containers = document.querySelectorAll('.t1 .right, .t2, .t4, .t3 .right, .t5, .t6 .right');
+    containers.forEach(container=>{
+      const draggables = container.querySelectorAll('.draggable');
+      draggables.forEach(el=>{
+        el.setAttribute('draggable','true');
+        el.addEventListener('dragstart', ()=> el.classList.add('opacity-60'));
+        el.addEventListener('dragend', ()=> el.classList.remove('opacity-60'));
+      });
+      container.addEventListener('dragover', e=>{
+        e.preventDefault();
+        const after = getDragAfterElement(container, e.clientY);
+        const dragging = container.querySelector('.opacity-60');
+        if(!dragging) return;
+        if(after == null){
+          container.appendChild(dragging);
+        } else {
+          container.insertBefore(dragging, after);
+        }
+      });
+    });
+    function getDragAfterElement(container, y){
+      const els = [...container.querySelectorAll('.draggable:not(.opacity-60)')];
+      return els.reduce((closest,child)=>{
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height/2;
+        if(offset < 0 && offset > closest.offset){
+          return { offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+  }
+
+  // ---------- Pagination (multi-page) ----------
+  function paginatePages(){
+    const wrap = $('#sheetWrap');
+    const pages = [...wrap.querySelectorAll('.sheet')];
+    if(pages.length === 0) return;
+
+    function overflow(el){ return el.scrollHeight > el.clientHeight + 2; }
+
+    // Try moving blocks from bottom to a new page
+    for(let i=0;i<pages.length;i++){
+      const page = pages[i];
+      const contentRoot = page.firstElementChild;
+      if(!contentRoot) continue;
+      if(!overflow(page)) continue;
+
+      const newPage = document.createElement('div');
+      newPage.className = 'sheet';
+      const newInner = document.createElement('div');
+      newInner.className = contentRoot.className;
+      newPage.appendChild(newInner);
+
+      const candidates = [...contentRoot.querySelectorAll(':scope > .right > .section, :scope > .section, :scope > .timeline, :scope > .item, :scope > .job, :scope > .titem')];
+      let idx = candidates.length ? candidates.length - 1 : contentRoot.children.length - 1;
+      let movedAny = false;
+
+      while(overflow(page) && idx >= 0){
+        const node = candidates.length ? candidates[idx] : contentRoot.children[idx];
+        if(!node || node.parentElement === newInner) { idx--; continue; }
+        newInner.insertBefore(node, newInner.firstChild);
+        movedAny = true;
+        idx--;
+      }
+
+      if(movedAny){
+        wrap.appendChild(newPage);
+      } else {
+        page.style.transformOrigin = 'top left';
+        page.style.transform = 'scale(0.98)';
+      }
+    }
+
+    // Check later pages too
+    const pages2 = [...wrap.querySelectorAll('.sheet')];
+    for(const p of pages2){
+      if(p.scrollHeight > p.clientHeight + 2){
+        const inner = p.firstElementChild;
+        const newPage = document.createElement('div');
+        newPage.className = 'sheet';
+        const newInner = document.createElement('div');
+        newInner.className = inner.className;
+        newPage.appendChild(newInner);
+        let idx = inner.children.length - 1;
+        while(p.scrollHeight > p.clientHeight + 2 && idx >= 0){
+          newInner.insertBefore(inner.children[idx], newInner.firstChild);
+          idx--;
+        }
+        wrap.appendChild(newPage);
+      }
+    }
+  }
+
+  // ---------- Export / Shortcuts ----------
+  function printSheet(){
+    apply();
+    setTimeout(()=>window.print(), 300);
+  }
+  function exportDocxFromPreview(){
+    const { Document, Packer, Paragraph } = window.docx;
+    const pages = [...document.querySelectorAll('#sheetWrap .sheet')];
+    const paras = [];
+    pages.forEach((page,pi)=>{
+      const text = page.innerText.replace(/\\n\\n+/g,'\\n').trim();
+      text.split('\\n').forEach(line=>{
+        paras.push(new Paragraph({ text: line }));
+      });
+      if(pi < pages.length-1){
+        paras.push(new Paragraph({ text: '' }));
+      }
+    });
+    const doc = new Document({ sections: [{ children: paras }] });
+    Packer.toBlob(doc).then(blob=>{
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'resume.docx';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  }
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.ctrlKey && e.shiftKey && !e.altKey){
+      if(e.key.toLowerCase() === 'f'){
+        e.preventDefault();
+        fontIdx = (fontIdx + 1) % FONTS.length;
+        localStorage.setItem('rb_fontIdx', String(fontIdx));
+        apply();
+      }
+      if(e.key.toLowerCase() === 'e'){
+        e.preventDefault();
+        exportDocxFromPreview();
+      }
+    }
+  });
+
+  // ---------- Template card -> #tpl sync ----------
+  function bindTemplateCards(){
+    const cards = document.querySelectorAll('#tplCards [data-tpl]');
+    cards.forEach(card=>{
+      card.addEventListener('click', ()=>{
+        const val = card.getAttribute('data-tpl');
+        $('#tpl').value = val;
+        // check the radio inside
+        cards.forEach(c => c.querySelector('input[type="radio"]').checked = false);
+        card.querySelector('input[type="radio"]').checked = true;
+        apply();
+      });
+    });
+  }
+
+  // ---------- Live preview wiring ----------
+  function attachLivePreview(){
+    document.querySelectorAll('#form input, #form textarea').forEach(el=>{
+      el.addEventListener('input', apply);
+      el.addEventListener('change', apply);
+    });
+    // merge LinkedIn + GitHub into web whenever they change
+    $('#lnInput')?.addEventListener('input', apply);
+    $('#ghInput')?.addEventListener('input', apply);
+  }
+
+  // ---------- Persistence ----------
+  function loadSaved(){
+    const raw = localStorage.getItem('rb_form');
+    if(!raw) return;
+    try{
+      const d = JSON.parse(raw);
+      const f = $('#form');
+      Object.keys(d).forEach(k=>{
+        if(f.elements[k]) f.elements[k].value = d[k];
+      });
+      // attempt to split saved web back into LinkedIn & GitHub heuristically (optional)
+      if(d.web){
+        const parts = d.web.split('•').map(x=>x.trim());
+        const ln = parts.find(x=>/linkedin\.com/i.test(x));
+        const gh = parts.find(x=>/github\.com/i.test(x));
+        if(ln) $('#lnInput').value = ln;
+        if(gh) $('#ghInput').value = gh;
+      }
+    }catch{}
+  }
+
+  // ---------- Boot ----------
+  loadSaved();
+  bindTemplateCards();
+  attachLivePreview();
+
+  // ensure hidden "web" is up-to-date before first render
+  mergeLinksIntoWeb();
+  apply();
+</script>
+
+</body>
+</html>

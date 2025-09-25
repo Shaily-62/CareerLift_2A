@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Course Recommender</title>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0d1b2a, #1b263b);
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      animation: fadeIn 1.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      background-color: #1b263b;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      width: 420px;
+      text-align: center;
+      border: 2px solid #ff6f3c; /* orange accent border */
+    }
+
+    h1 {
+      color: #ff6f3c;
+      margin-bottom: 20px;
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    input[type="file"] {
+      background-color: #415a77;
+      color: #fff;
+      border: 2px dashed #ff6f3c;
+      padding: 14px;
+      border-radius: 10px;
+      width: 100%;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    input[type="file"]:hover { background-color: #324a64; }
+
+    button {
+      background-color: #ff6f3c;
+      color: #ffffff;
+      border: none;
+      padding: 14px 22px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      width: 100%;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background-color: #ff814f;
+      transform: scale(1.05);
+    }
+
+    .saved-button {
+      display: inline-block;
+      background-color: transparent;
+      border: 2px solid #ff6f3c;
+      color: #ff6f3c;
+      padding: 12px 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .saved-button:hover {
+      background-color: #ff6f3c;
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+
+    lottie-player {
+      height: 160px;
+      margin-bottom: 20px;
+    }
+
+    .rocket {
+      height: 30px;
+      width: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Resume Upload Animation -->
+    <lottie-player 
+      src="https://assets10.lottiefiles.com/packages/lf20_7fwv3dbs.json"
+      background="transparent"  
+      speed="1"  
+      loop  
+      autoplay>
+    </lottie-player>
+
+    <h1>Upload Your Resume</h1>
+    <form action="/recommend_courses" method="POST" enctype="multipart/form-data">
+      <input type="file" name="resume" accept=".pdf" required>
+      <br>
+      <button type="submit">
+        🚀 Get Course Recommendations
+      </button>
+    </form>
+    
+    <!-- Saved Courses Button -->
+    <a href="/saved" class="saved-button">❤️ Saved Courses</a>
+  </div>
+</body>
+</html>

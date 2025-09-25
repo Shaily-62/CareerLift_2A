@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Saved Courses</title>
+  <style>
+    body {
+      background-color: #0a192f;
+      color: #e0f7fa;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #64ffda;
+      margin-bottom: 30px;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      padding: 20px;
+    }
+
+    .card {
+      background-color: #112240;
+      border: 1px solid #233554;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+    }
+
+    .course-title {
+      color: #64ffda;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .platform {
+      color: #8892b0;
+      font-size: 0.9rem;
+    }
+
+    .rating {
+      color: #ffd700;
+      font-weight: bold;
+    }
+
+    .course-link {
+      display: inline-block;
+      margin-top: 12px;
+      color: #00d9ff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .course-link:hover {
+      color: #1de9b6;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>❤️ Your Saved Courses</h1>
+
+  {% if courses %}
+    <div class="grid-container">
+      {% for course in courses %}
+        <div class="card">
+          <div class="course-title">{{ course.course_name }}</div>
+          <div class="platform">Platform: {{ course.platform }}</div>
+          <div class="rating">⭐ Rating: {{ course.rating }}</div>
+          <a href="{{ course.course_url }}" class="course-link" target="_blank">View Course</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="text-align: center;">You haven't saved any courses yet.</p>
+  {% endif %}
+
+</body>
+</html>
